@@ -3,36 +3,32 @@ report 55000 "HMX Delete Sales Orders"
     ApplicationArea = All;
     Caption = 'Delete Sales Orders Prior to Selected Date';
     UsageCategory = ReportsAndAnalysis;
-    ProcessingOnly = true;
+    RDLCLayout = 'src/Reports/layouts/NotDeletedSalesOrders.rdl';
     dataset
     {
         dataitem(SalesHeader; "Sales Header")
         {
             RequestFilterFields = "No.";
+            column(Sales_Order_No; SalesHeader."No.")
+            {
+            }
+            column(Error_Text; ErrorText)
+            {
+            }
             trigger OnPreDataItem()
             begin
                 SetRange("Document Type", "Document Type"::Order);
-                SetFilter(SystemCreatedAt, '..%1', CreateDateTime(PriorDate, 000000T));
+                SetFilter(SystemCreatedAt, '<%1', CreateDateTime(PriorDate, 000000T));
                 DeletedCount := 0;
                 Clear(ErrorText);
             end;
 
             trigger OnAfterGetRecord()
-
             begin
                 if not DeleteSalesOrder(SalesHeader) then begin
-                    ErrorText += SalesHeader."No." + ' - ' + GetLastErrorText();
-                    CurrReport.Skip();
-                end;
-                DeletedCount += 1;
-            end;
-
-            trigger OnPostDataItem()
-            begin
-                if DeletedCount > 0 then
-                    Message('%1 Sales Order(s) deleted successfully.', DeletedCount);
-                if ErrorText <> '' then
-                    Message('Sales Order(s) that are not deleted: %1', ErrorText);
+                    ErrorText := GetLastErrorText();
+                end else
+                    DeletedCount += 1;
             end;
         }
     }
@@ -64,6 +60,8 @@ report 55000 "HMX Delete Sales Orders"
     trigger OnPostReport()
     begin
         HairmaxSingleInstance.SetHideDeleteSOReservationConfirm(false);
+        if DeletedCount > 0 then
+            Message('%1 Sales Order(s) deleted successfully.', DeletedCount);
     end;
 
     var
