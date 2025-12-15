@@ -18,7 +18,7 @@ report 55000 "HMX Delete Sales Orders"
             trigger OnPreDataItem()
             begin
                 SetRange("Document Type", "Document Type"::Order);
-                SetFilter(SystemCreatedAt, '<%1', CreateDateTime(PriorDate, 000000T));
+                SetFilter("Document Date", '<%1', PriorDate);
                 DeletedCount := 0;
                 Clear(ErrorText);
             end;
@@ -27,8 +27,10 @@ report 55000 "HMX Delete Sales Orders"
             begin
                 if not DeleteSalesOrder(SalesHeader) then begin
                     ErrorText := GetLastErrorText();
-                end else
+                end else begin
                     DeletedCount += 1;
+                    CurrReport.Skip();
+                end;
             end;
         }
     }
