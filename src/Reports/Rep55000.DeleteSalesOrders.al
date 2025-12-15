@@ -21,16 +21,31 @@ report 55000 "HMX Delete Sales Orders"
                 SetFilter("Document Date", '<%1', PriorDate);
                 DeletedCount := 0;
                 Clear(ErrorText);
+                if IsEmpty() then
+                    CurrReport.Quit();
             end;
 
             trigger OnAfterGetRecord()
             begin
                 if not DeleteSalesOrder(SalesHeader) then begin
                     ErrorText := GetLastErrorText();
+                    SOFailedCount += 1;
                 end else begin
                     DeletedCount += 1;
                     CurrReport.Skip();
                 end;
+            end;
+
+
+            trigger OnPostDataItem()
+            begin
+
+                if DeletedCount > 0 then
+                    Message('%1 Sales Order(s) deleted successfully.', DeletedCount);
+
+                if SOFailedCount = 0 then
+                    CurrReport.Quit();
+
             end;
         }
     }
@@ -62,14 +77,13 @@ report 55000 "HMX Delete Sales Orders"
     trigger OnPostReport()
     begin
         HairmaxSingleInstance.SetHideDeleteSOReservationConfirm(false);
-        if DeletedCount > 0 then
-            Message('%1 Sales Order(s) deleted successfully.', DeletedCount);
     end;
 
     var
         ErrorText: Text;
         PriorDate: Date;
         DeletedCount: Integer;
+        SOFailedCount: Integer;
         HairmaxSingleInstance: Codeunit "HMX HairMax Single Instance";
 
     [TryFunction]
