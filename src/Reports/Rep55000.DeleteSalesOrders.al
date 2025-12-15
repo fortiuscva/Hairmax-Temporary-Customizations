@@ -17,12 +17,8 @@ report 55000 "HMX Delete Sales Orders"
             end;
 
             trigger OnAfterGetRecord()
-            var
-                ErrText: Text;
             begin
-                ClearLastError();
                 if not DeleteSalesOrder(SalesHeader) then begin
-                    ErrText := GetLastErrorText();
                     CurrReport.Skip();
                 end;
                 DeletedCount += 1;
