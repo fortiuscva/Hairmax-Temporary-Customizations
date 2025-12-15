@@ -17,8 +17,14 @@ report 55000 "HMX Delete Sales Orders"
             end;
 
             trigger OnAfterGetRecord()
+            var
+                ErrText: Text;
             begin
-                Delete(true);
+                ClearLastError();
+                if not DeleteSalesOrder(SalesHeader) then begin
+                    ErrText := GetLastErrorText();
+                    CurrReport.Skip();
+                end;
                 DeletedCount += 1;
             end;
 
@@ -62,4 +68,11 @@ report 55000 "HMX Delete Sales Orders"
         PriorDate: Date;
         DeletedCount: Integer;
         HairmaxSingleInstance: Codeunit "HMX HairMax Single Instance";
+
+    [TryFunction]
+    local procedure DeleteSalesOrder(var SalesHeader: Record "Sales Header")
+    begin
+        SalesHeader.Delete(true);
+    end;
+
 }
