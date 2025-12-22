@@ -8,7 +8,7 @@ codeunit 55000 "HMX Event Subscribers"
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeModifyEvent', '', true, true)]
-    local procedure SalesHeader_OnBeforeModify(var Rec: Record "Sales Header"; xRec: Record "Sales Header")
+    local procedure SalesHeader_OnBeforeModify(var Rec: Record "Sales Header"; xRec: Record "Sales Header"; RunTrigger: Boolean)
     begin
         GeneralFunctionsCU.PreventDuplicateShopifyOrderNo(Rec);
     end;
@@ -19,6 +19,7 @@ codeunit 55000 "HMX Event Subscribers"
     begin
         GeneralFunctionsCU.PreventDuplicateShopifyOrderNo(Rec);
     end;
+
 
 
     var
