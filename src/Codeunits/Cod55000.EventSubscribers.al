@@ -7,30 +7,21 @@ codeunit 55000 "HMX Event Subscribers"
             HideValidationDialog := true;
     end;
 
-    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeValidateEvent', 'Shpfy Order No.', false, false)]
-    local procedure PreventDuplicateShopifyOrderNo(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; CurrFieldNo: Integer)
-    var
-        SalesHeader: Record "Sales Header";
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeModifyEvent', '', true, true)]
+    local procedure SalesHeader_OnBeforeModify(var Rec: Record "Sales Header"; xRec: Record "Sales Header")
     begin
-        if Rec."Shpfy Order No." = xRec."Shpfy Order No." then
-            exit;
-
-        if Rec."Shpfy Order No." = '' then
-            exit;
-
-        SalesHeader.Reset();
-        SalesHeader.SetRange("Shpfy Order No.", Rec."Shpfy Order No.");
-
-        if SalesHeader.FindFirst() then begin
-            if SalesHeader."No." <> Rec."No." then
-                Error(
-                    'Shopify Order No. %1 already exists in Order %2.',
-                    Rec."Shpfy Order No.",
-                    SalesHeader."No."
-                );
-        end;
+        GeneralFunctionsCU.PreventDuplicateShopifyOrderNo(Rec);
     end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'Shpfy Order No.', true, true)]
+    local procedure SalesHeader_OnAfterValidate(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; CurrFieldNo: Integer)
+    begin
+        GeneralFunctionsCU.PreventDuplicateShopifyOrderNo(Rec);
+    end;
+
 
     var
         HairmaxSingleInstance: Codeunit "HMX HairMax Single Instance";
+        GeneralFunctionsCU: Codeunit "HMX General Functions";
 }
