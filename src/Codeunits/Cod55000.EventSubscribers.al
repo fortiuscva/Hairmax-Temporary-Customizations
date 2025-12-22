@@ -7,6 +7,21 @@ codeunit 55000 "HMX Event Subscribers"
             HideValidationDialog := true;
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeModifyEvent', '', true, true)]
+    local procedure SalesHeader_OnBeforeModify(var Rec: Record "Sales Header"; xRec: Record "Sales Header")
+    begin
+        GeneralFunctionsCU.PreventDuplicateShopifyOrderNo(Rec);
+    end;
+
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnAfterValidateEvent', 'Shpfy Order No.', true, true)]
+    local procedure SalesHeader_OnAfterValidate(var Rec: Record "Sales Header"; var xRec: Record "Sales Header"; CurrFieldNo: Integer)
+    begin
+        GeneralFunctionsCU.PreventDuplicateShopifyOrderNo(Rec);
+    end;
+
+
     var
         HairmaxSingleInstance: Codeunit "HMX HairMax Single Instance";
+        GeneralFunctionsCU: Codeunit "HMX General Functions";
 }
