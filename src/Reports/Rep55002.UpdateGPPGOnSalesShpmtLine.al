@@ -61,7 +61,7 @@ report 55002 "Update GPPG On SalesShpmt Line"
 
     trigger OnPostReport()
     begin
-        Message('%1 line(s) updated to Gen. Prod. Posting Group "%2".', LinesChanged, NewGPPG);
+        Message('Gen. Prod. Posting Group for %1 has been updated to "%2".', SalesShipmentLine."No.", NewGPPG);
     end;
 
     var
